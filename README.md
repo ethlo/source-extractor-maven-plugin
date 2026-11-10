@@ -1,7 +1,7 @@
 ### source-extractor-maven-plugin
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.ethlo.documentation/source-extractor-maven-plugin.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.ethlo.time%22%20a%3A%22itu%22)
-[![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](LICENSE)
+[![Maven Central](https://img.shields.io/maven-central/v/com.ethlo.documentation/source-extractor-maven-plugin.svg)](https://central.sonatype.com/artifact/com.ethlo.documentation/source-extractor-maven-plugin)
+[![License](https://img.shields.io/github/license/ethlo/source-extractor-maven-plugin)](LICENSE)
 
 An opinionated little tool to extract code samples for inclusion in HTML or markdown to avoid maintaining example code separately from tests.
 
