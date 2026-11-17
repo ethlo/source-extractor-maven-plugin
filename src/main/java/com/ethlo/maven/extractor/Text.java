@@ -29,8 +29,22 @@ import java.util.stream.Collectors;
  */
 final class Text
 {
+    /**
+     * The line terminators of the Java language (JLS 3.4). Unlike {@code \\R} this does not match characters such as
+     * U+2028 that can legally appear inside string literals, so line numbers agree with JavaParser's.
+     */
+    private static final String LINE_TERMINATOR = "\\r\\n|\\r|\\n";
+
     private Text()
     {
+    }
+
+    /**
+     * Split text into lines on Java line terminators only, keeping trailing empty lines.
+     */
+    static String[] lines(String text)
+    {
+        return text.split(LINE_TERMINATOR, -1);
     }
 
     /**
@@ -39,7 +53,7 @@ final class Text
      */
     static String dedent(String text)
     {
-        final List<String> lines = Arrays.stream(text.split("\\R", -1))
+        final List<String> lines = Arrays.stream(lines(text))
                 .map(String::stripTrailing)
                 .collect(Collectors.toList());
 
@@ -68,7 +82,7 @@ final class Text
      */
     static String stripLeadingAsterisks(String comment)
     {
-        return Arrays.stream(comment.split("\\R", -1))
+        return Arrays.stream(lines(comment))
                 .map(l -> l.replaceFirst("^\\s*\\* ?", ""))
                 .collect(Collectors.joining("\n"));
     }

@@ -223,6 +223,28 @@ class JavaSampleExtractorTest
     }
 
     @Test
+    void keepsUnicodeLineSeparatorsInsideLiterals() throws IOException
+    {
+        // U+2028 and U+2029 are legal inside a string literal and are not Java line terminators
+        write("Demo.java", "class Demo\n{\n    String sample()\n    {\n        return \"a\u2028b\u2029c\";\n    }\n}\n");
+
+        final MethodSample sample = extract().get(0).methods().get(0);
+
+        assertThat(sample.body()).isEqualTo("return \"a\u2028b\u2029c\";");
+        assertThat(sample.range().end().line()).isEqualTo(6);
+    }
+
+    @Test
+    void handlesWindowsAndOldMacLineEndings() throws IOException
+    {
+        write("Crlf.java", "class Crlf\r\n{\r\n    void sample()\r\n    {\r\n        int a = 1;\r\n\r\n        a++;\r\n    }\r\n}\r\n");
+        write("Cr.java", "class Cr\r{\r    void sample()\r    {\r        int b = 2;\r    }\r}\r");
+
+        assertThat(extract()).flatExtracting(ClassSample::methods).extracting(MethodSample::body)
+                .containsExactly("int b = 2;", "int a = 1;\n\na++;");
+    }
+
+    @Test
     void warnsAndContinuesOnUnparseableFiles() throws IOException
     {
         write("Broken.java", "class Broken { void x( }");
