@@ -23,6 +23,7 @@ package com.ethlo.maven.extractor;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -98,7 +99,8 @@ public final class TemplateRenderer
         final String builtIn = BUILT_IN.get(template);
         if (builtIn != null)
         {
-            return classpathEngine().getTemplate(builtIn);
+            // Built-in templates are part of this plugin and always UTF-8, whatever the project's encoding
+            return classpathEngine(StandardCharsets.UTF_8).getTemplate(builtIn);
         }
 
         final Path file = baseDir.resolve(template);
@@ -113,7 +115,7 @@ public final class TemplateRenderer
         final String resource = template.startsWith("/") ? template.substring(1) : template;
         if (getClass().getClassLoader().getResource(resource) != null)
         {
-            return classpathEngine().getTemplate(resource);
+            return classpathEngine(encoding).getTemplate(resource);
         }
 
         throw new IOException("Template '" + template + "' not found. Use one of the built-in templates "
@@ -121,10 +123,10 @@ public final class TemplateRenderer
                 + "), or a classpath resource.");
     }
 
-    private PebbleEngine classpathEngine()
+    private PebbleEngine classpathEngine(Charset charset)
     {
         final ClasspathLoader loader = new ClasspathLoader(getClass().getClassLoader());
-        loader.setCharset(encoding.name());
+        loader.setCharset(charset.name());
         return engine(loader);
     }
 

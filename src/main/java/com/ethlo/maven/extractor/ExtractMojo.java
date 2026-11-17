@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +122,7 @@ public class ExtractMojo extends AbstractMojo
         final JavaSampleExtractor extractor = new JavaSampleExtractor(baseDir, charset, getLog()::warn);
         final TemplateRenderer renderer = new TemplateRenderer(baseDir, charset);
 
+        checkUnique();
         for (Source source : sources)
         {
             process(source, baseDir, extractor, renderer, charset);
@@ -130,11 +132,6 @@ public class ExtractMojo extends AbstractMojo
     private void process(Source source, Path baseDir, JavaSampleExtractor extractor, TemplateRenderer renderer, Charset charset)
             throws MojoExecutionException, MojoFailureException
     {
-        if (source.getDirectory() == null || source.getDirectory().isBlank())
-        {
-            throw new MojoFailureException("Every <source> needs a directory");
-        }
-
         final Path directory = baseDir.resolve(source.getDirectory());
         if (!Files.isDirectory(directory))
         {
@@ -162,7 +159,7 @@ public class ExtractMojo extends AbstractMojo
             getLog().warn(message);
         }
 
-        final String sourceTemplate = source.getTemplate() != null ? source.getTemplate() : template;
+        final String sourceTemplate = templateFor(source);
         final String rendered;
         try
         {
@@ -175,7 +172,7 @@ public class ExtractMojo extends AbstractMojo
 
         project.getProperties().setProperty(source.getName(), rendered);
 
-        final Path output = outputDirectory.toPath().resolve(fileName(source.getName()) + "." + TemplateRenderer.extension(sourceTemplate));
+        final Path output = outputFile(source);
         try
         {
             Files.createDirectories(output.getParent());
@@ -192,6 +189,49 @@ public class ExtractMojo extends AbstractMojo
         {
             getLog().debug("Rendered " + source.getName() + ":\n" + rendered);
         }
+    }
+
+    /**
+     * Two sources with the same name would overwrite each other's property, and two names that map to the same file
+     * name (like {@code samples/a} and {@code samples-a}) would overwrite each other's output file. Fail before
+     * writing anything rather than silently losing one of them.
+     */
+    private void checkUnique() throws MojoFailureException
+    {
+        final Map<String, Source> byName = new HashMap<>();
+        final Map<Path, Source> byFile = new HashMap<>();
+        for (Source source : sources)
+        {
+            if (source.getDirectory() == null || source.getDirectory().isBlank())
+            {
+                throw new MojoFailureException("Every <source> needs a directory");
+            }
+            final Source sameName = byName.putIfAbsent(source.getName(), source);
+            if (sameName != null)
+            {
+                throw new MojoFailureException("Sources '" + sameName + "' and '" + source + "' are both named '"
+                        + source.getName() + "'. Give one of them a different <name>.");
+            }
+            final Source sameFile = byFile.putIfAbsent(outputFile(source), source);
+            if (sameFile != null)
+            {
+                throw new MojoFailureException("Sources named '" + sameFile.getName() + "' and '" + source.getName()
+                        + "' would both be written to " + outputFile(source) + ". Give one of them a different <name>.");
+            }
+        }
+    }
+
+    private String templateFor(Source source)
+    {
+        return source.getTemplate() != null ? source.getTemplate() : template;
+    }
+
+    private Path outputFile(Source source)
+    {
+        return outputDirectory.toPath()
+                .resolve(fileName(source.getName()) + "." + TemplateRenderer.extension(templateFor(source)))
+                .toAbsolutePath()
+                .normalize();
     }
 
     private Map<String, Object> model(Source source, List<ClassSample> classes, List<MethodSample> methods)

@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -156,6 +157,66 @@ class ExtractMojoTest
         mojo.template = "missing.md";
 
         assertThatThrownBy(mojo::execute).hasMessageContaining("Template 'missing.md' not found");
+    }
+
+    @Test
+    void failsWhenTwoSourcesWouldWriteTheSameFile() throws IOException
+    {
+        Files.createDirectories(baseDir.resolve("samples/a"));
+        Files.createDirectories(baseDir.resolve("samples-a"));
+        mojo.sources = List.of(new Source("samples/a"), new Source("samples-a"));
+
+        assertThatThrownBy(mojo::execute).isInstanceOf(MojoFailureException.class)
+                .hasMessageContaining("'samples/a' and 'samples-a' would both be written to")
+                .hasMessageContaining("samples-a.md");
+        assertThat(baseDir.resolve("target/source-extractor")).doesNotExist();
+    }
+
+    @Test
+    void failsWhenTwoSourcesHaveTheSameName()
+    {
+        final Source other = new Source("src");
+        other.setName("src/test/java/samples");
+        mojo.sources = List.of(new Source("src/test/java/samples"), other);
+
+        assertThatThrownBy(mojo::execute).isInstanceOf(MojoFailureException.class)
+                .hasMessageContaining("are both named 'src/test/java/samples'");
+    }
+
+    @Test
+    void allowsTheSameNameWithDifferentTemplateExtensions() throws Exception
+    {
+        final Source html = new Source("src/test/java/samples");
+        html.setName("samples");
+        html.setTemplate("html");
+        final Source markdown = new Source("src/test/java/samples");
+        markdown.setName("samples.md-variant");
+        mojo.sources = List.of(html, markdown);
+
+        mojo.execute();
+
+        assertThat(baseDir.resolve("target/source-extractor/samples.html")).exists();
+        assertThat(baseDir.resolve("target/source-extractor/samples.md-variant.md")).exists();
+    }
+
+    @Test
+    void readsBuiltInTemplatesAsUtf8WhateverTheProjectEncoding() throws Exception
+    {
+        final Path samples = baseDir.resolve("src/test/java/samples");
+        Files.writeString(samples.resolve("Samples.java"), """
+                class Samples
+                {
+                    /** Grüße */
+                    void greet() {}
+                }
+                """, StandardCharsets.UTF_16);
+        mojo.encoding = "UTF-16";
+
+        mojo.execute();
+
+        assertThat(mojo.project.getProperties().getProperty("src/test/java/samples"))
+                .contains("#### greet <sup>[source](src/test/java/samples/Samples.java#L3-L4)</sup>")
+                .contains("Grüße");
     }
 
     @Test

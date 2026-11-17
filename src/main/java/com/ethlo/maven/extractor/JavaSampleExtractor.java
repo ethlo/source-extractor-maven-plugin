@@ -111,7 +111,7 @@ public final class JavaSampleExtractor
         }
 
         final String path = relative(file);
-        final String[] lines = source.split("\\R", -1);
+        final String[] lines = Text.lines(source);
         final List<ClassSample> result = new ArrayList<>();
         for (TypeDeclaration<?> type : cu.get().findAll(TypeDeclaration.class))
         {
