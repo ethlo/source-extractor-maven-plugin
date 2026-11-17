@@ -184,19 +184,19 @@ class ExtractMojoTest
     }
 
     @Test
-    void allowsTheSameNameWithDifferentTemplateExtensions() throws Exception
+    void allowsTheSameDirectoryTwiceUnderDifferentNames() throws Exception
     {
         final Source html = new Source("src/test/java/samples");
         html.setName("samples");
         html.setTemplate("html");
         final Source markdown = new Source("src/test/java/samples");
-        markdown.setName("samples.md-variant");
+        markdown.setName("samples-md");
         mojo.sources = List.of(html, markdown);
 
         mojo.execute();
 
         assertThat(baseDir.resolve("target/source-extractor/samples.html")).exists();
-        assertThat(baseDir.resolve("target/source-extractor/samples.md-variant.md")).exists();
+        assertThat(baseDir.resolve("target/source-extractor/samples-md.md")).exists();
     }
 
     @Test
