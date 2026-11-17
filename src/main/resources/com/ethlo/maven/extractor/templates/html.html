@@ -1,0 +1,17 @@
+{# Pebble removes the newline that follows a tag, so a line that ends in a tag needs one extra newline #}
+{% for class in classes %}
+<section class="samples" id="{{ class.qualifiedName }}">
+{% if class.description is not null %}
+  <div class="description">{{ class.description | raw }}</div>
+{% endif %}
+{% for method in class.methods %}
+  <article class="sample" id="{{ class.name }}-{{ method.name }}">
+    <h4>{{ method.name }} <small><a href="{{ method.link }}">source</a></small></h4>
+{% if method.description is not null %}
+    <div class="description">{{ method.description | raw }}</div>
+{% endif %}
+    <pre><code class="language-java">{{ method.body }}</code></pre>
+  </article>
+{% endfor %}
+</section>
+{% endfor %}

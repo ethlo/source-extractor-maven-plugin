@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>readme</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/docs</directory>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/docs</targetPath>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>@project.groupId@</groupId>
+                <artifactId>@project.artifactId@</artifactId>
+                <version>@project.version@</version>
+                <configuration>
+                    <sources>
+                        <!-- Short form, available as ${src/test/java/com/example/docs} -->
+                        <source>src/test/java/com/example/docs</source>
+                        <!-- Long form with a name and its own template -->
+                        <source>
+                            <directory>src/test/java/com/example/docs</directory>
+                            <name>samples-html</name>
+                            <template>html</template>
+                        </source>
+                    </sources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>extract</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
