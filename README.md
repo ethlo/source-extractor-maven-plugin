@@ -43,7 +43,7 @@ class ListSamples
 <plugin>
     <groupId>com.ethlo.documentation</groupId>
     <artifactId>source-extractor-maven-plugin</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
     <configuration>
         <sources>
             <source>
@@ -157,11 +157,11 @@ A minimal template that lists the samples:
 
 Pebble escapes HTML by default. Use `| raw` for text that should be used as is, like code in a Markdown fence.
 
-### Upgrading from 0.3
+### Upgrading from 0.4 and earlier
 
 * Java 17 and Maven 3.9 or newer are required.
 * The default phase is now `generate-resources`, so you can remove `<phase>initialize</phase>` from the execution.
-* `template` is now optional. Templates written for 0.3 still work: the `class` and `methods` variables are still
+* `template` is now optional. Templates written for earlier versions still work: the `class` and `methods` variables are still
   there, and `class.path` is still the source directory.
 * Samples now keep blank lines and comments from the body, and get correct indentation for nested blocks.
 * `private` methods are no longer extracted.
@@ -170,27 +170,26 @@ Pebble escapes HTML by default. Use `| raw` for text that should be used as is, 
 
 ### Extracted samples
 
-
-
-#### showOffFeatureA <span style="font-weight: normal">[&raquo; source](src/test/java/samples/SampleCode.java#L28C5-L37C6)</span>
+#### showOffFeatureA <sup>[source](src/test/java/samples/SampleCode.java#L28-L37)</sup>
 
 <p>Description of the cool feature A goes here!</p>
 
 ```java
 final List<String> list = Arrays.asList("something", "cool");
+
 assert list.size() == 2;
 assert list != null;
 ```
 
-
-#### showOffFeatureB <span style="font-weight: normal">[&raquo; source](src/test/java/samples/SampleCode.java#L39C5-L50C6)</span>
+#### showOffFeatureB <sup>[source](src/test/java/samples/SampleCode.java#L39-L50)</sup>
 
 Description of the cool feature B goes here!
 
- And some more here!
+And some more here!
 
 ```java
 final List<String> list = Arrays.asList("something", "else", "cool");
+
 assert list.size() == 2;
 assert list != null;
 ```

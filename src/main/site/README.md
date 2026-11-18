@@ -157,11 +157,11 @@ A minimal template that lists the samples:
 
 Pebble escapes HTML by default. Use `| raw` for text that should be used as is, like code in a Markdown fence.
 
-### Upgrading from 0.3
+### Upgrading from 0.4 and earlier
 
 * Java 17 and Maven 3.9 or newer are required.
 * The default phase is now `generate-resources`, so you can remove `<phase>initialize</phase>` from the execution.
-* `template` is now optional. Templates written for 0.3 still work: the `class` and `methods` variables are still
+* `template` is now optional. Templates written for earlier versions still work: the `class` and `methods` variables are still
   there, and `class.path` is still the source directory.
 * Samples now keep blank lines and comments from the body, and get correct indentation for nested blocks.
 * `private` methods are no longer extracted.
