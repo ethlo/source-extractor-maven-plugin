@@ -43,7 +43,7 @@ class ListSamples
 <plugin>
     <groupId>com.ethlo.documentation</groupId>
     <artifactId>source-extractor-maven-plugin</artifactId>
-    <version>${project.version}</version>
+    <version>${released.version}</version>
     <configuration>
         <sources>
             <source>
